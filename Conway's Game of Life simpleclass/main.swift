@@ -31,7 +31,7 @@ func mapCreate(Xjiku x:Int,Yjiku y:Int,seisei s:()->Bool = {Bool.random()} ) -> 
 
 
 lifeData = mapCreate(Xjiku: 5, Yjiku:5 )
-print(lifeData)
+//print(lifeData)
 
 //ブロック状に表示してくれる。
 func lifeView(world w:[[Bool]]) {
