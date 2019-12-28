@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		23C5A3B123B6FB5A0061E0A8 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C5A3B023B6FB5A0061E0A8 /* main.swift */; };
+		23C5A3B823B6FBA10061E0A8 /* LifeGameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C5A3B723B6FBA10061E0A8 /* LifeGameEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		23C5A3AD23B6FB5A0061E0A8 /* Conway's Game of Life simpleclass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Conway's Game of Life simpleclass"; sourceTree = BUILT_PRODUCTS_DIR; };
 		23C5A3B023B6FB5A0061E0A8 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		23C5A3B723B6FBA10061E0A8 /* LifeGameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeGameEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				23C5A3B023B6FB5A0061E0A8 /* main.swift */,
+				23C5A3B723B6FBA10061E0A8 /* LifeGameEngine.swift */,
 			);
 			path = "Conway's Game of Life simpleclass";
 			sourceTree = "<group>";
@@ -121,6 +124,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23C5A3B123B6FB5A0061E0A8 /* main.swift in Sources */,
+				23C5A3B823B6FBA10061E0A8 /* LifeGameEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
