@@ -10,8 +10,8 @@ import Foundation
 
 print("Hello, World!")
 
-//ライフゲームの基礎データ[X軸[Y軸]] 要素０で初期化するなら初期値は不要　リスクのある使い方なので注意。
-var lifeData:[[Bool]]
+////ライフゲームの基礎データ[X軸[Y軸]] 要素０で初期化するなら初期値は不要　リスクのある使い方なので注意。
+//var lifeData:[[Bool]]
 
 //マップを生成してくれる 引数　X軸,Y軸,値生成方法(デフォルはランダム)省略可
 func mapCreate(Xjiku x:Int,Yjiku y:Int,seisei s:()->Bool = {Bool.random()} ) -> [[Bool]] {
