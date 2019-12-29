@@ -10,8 +10,8 @@ import Foundation
 
 print("Hello, World!")
 
-////ライフゲームの基礎データ[X軸[Y軸]] 要素０で初期化するなら初期値は不要　リスクのある使い方なので注意。
-//var lifeData:[[Bool]]
+//ライフゲームの基礎データ[X軸[Y軸]] 要素０で初期化するなら初期値は不要　リスクのある使い方なので注意。
+var lifeData:[[Bool]]
 
 //マップを生成してくれる 引数　X軸,Y軸,値生成方法(デフォルはランダム)省略可
 func mapCreate(Xjiku x:Int,Yjiku y:Int,seisei s:()->Bool = {Bool.random()} ) -> [[Bool]] {
@@ -159,77 +159,82 @@ for i in 0..<lifeData[0].count {
 lifeView(world: lifeData)
 
 
+//
+//
+//print("ここから、ゲームモード")
+////世界の大きさ
+//var ookisa:Int = 0
+////ゲームモードのマップ
+//var gameMap:[[Bool]]
+//
+//repeat {
+//    print("数字を入力してください1~50まで")
+//    //readLineで入力を受け付ける
+//    let readOokisa = readLine() ?? "0"
+//    ookisa = Int(readOokisa) ?? 0
+//}while ookisa == 0 || ookisa > 50
+//
+//print("\(ookisa)を受け取りました。マップを製造します")
+//gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
+//lifeView(world: gameMap)
+//
+////操作するループ　next change changeAll view exti
+////文字入力用文字列
+//var readString = ""
+//repeat{
+//    print("操作を英字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
+//    readString = readLine() ?? ""
+//    //switch文で条件分岐
+//    switch readString {
+//    case "next":
+//        var readKaisuu = ""
+//        var nextkaisuu = 0
+//        repeat {
+//            print("どれくらい進めますか？1回以上")
+//            readKaisuu = readLine() ?? "0"
+//            nextkaisuu = Int(readKaisuu) ?? 0
+//        }while nextkaisuu == 0
+//        for _ in 0..<nextkaisuu{
+//            gameMap = nextLife(world: gameMap)
+//        }
+//    case "change":
+//        //x軸
+//        let xMax = gameMap.count
+//        var xjiku:Int = xMax
+//        repeat {
+//            print("x軸を入力して下さい。最大値は\(xMax - 1)です")
+//            let readX = readLine() ?? ""
+//            xjiku = Int(readX) ?? xjiku
+//        }while xjiku >= xMax
+//        //y軸
+//        let yMax = gameMap[0].count
+//        var yjiku:Int = yMax
+//        repeat {
+//            print("y軸を入力して下さい。最大値は\(yMax - 1)です")
+//            let ready = readLine() ?? ""
+//            yjiku = Int(ready) ?? yjiku
+//        }while yjiku >= yMax
+//        //操作部
+//        print("x:\(xjiku) y:\(yjiku)を、反転させます")
+//        kamiNoTe(world: &gameMap, point: (xjiku,yjiku))
+//    case "changeAll":
+//        print("世界を再構成します")
+//        //新たにマップを作って上書きする。
+//        gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
+//    case "view":
+//        lifeView(world: gameMap)
+//    case "exit":
+//        print("終了します")
+//    default:
+//        print("指示を理解できません")
+//    }
+//    //exitが入力されない限り繰り返す
+//}while readString != "exit"
+//
+//
+//
 
 
-print("ここから、ゲームモード")
-//世界の大きさ
-var ookisa:Int = 0
-//ゲームモードのマップ
-var gameMap:[[Bool]]
-
-repeat {
-    print("数字を入力してください1~50まで")
-    //readLineで入力を受け付ける
-    let readOokisa = readLine() ?? "0"
-    ookisa = Int(readOokisa) ?? 0
-}while ookisa == 0 || ookisa > 50
-
-print("\(ookisa)を受け取りました。マップを製造します")
-gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
-lifeView(world: gameMap)
-
-//操作するループ　next change changeAll view exti
-//文字入力用文字列
-var readString = ""
-repeat{
-    print("操作を英字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
-    readString = readLine() ?? ""
-    //switch文で条件分岐
-    switch readString {
-    case "next":
-        var readKaisuu = ""
-        var nextkaisuu = 0
-        repeat {
-            print("どれくらい進めますか？1回以上")
-            readKaisuu = readLine() ?? "0"
-            nextkaisuu = Int(readKaisuu) ?? 0
-        }while nextkaisuu == 0
-        for _ in 0..<nextkaisuu{
-            gameMap = nextLife(world: gameMap)
-        }
-    case "change":
-        //x軸
-        let xMax = gameMap.count
-        var xjiku:Int = xMax
-        repeat {
-            print("x軸を入力して下さい。最大値は\(xMax - 1)です")
-            let readX = readLine() ?? ""
-            xjiku = Int(readX) ?? xjiku
-        }while xjiku >= xMax
-        //y軸
-        let yMax = gameMap[0].count
-        var yjiku:Int = yMax
-        repeat {
-            print("y軸を入力して下さい。最大値は\(yMax - 1)です")
-            let ready = readLine() ?? ""
-            yjiku = Int(ready) ?? yjiku
-        }while yjiku >= yMax
-        //操作部
-        print("x:\(xjiku) y:\(yjiku)を、反転させます")
-        kamiNoTe(world: &gameMap, point: (xjiku,yjiku))
-    case "changeAll":
-        print("世界を再構成します")
-        //新たにマップを作って上書きする。
-        gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
-    case "view":
-        lifeView(world: gameMap)
-    case "exit":
-        print("終了します")
-    default:
-        print("指示を理解できません")
-    }
-    //exitが入力されない限り繰り返す
-}while readString != "exit"
-
-
-
+var miko = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.raddom, Edge: (x: true, y: true))
+print(miko.lifeData)
+print(miko.lifeMapLiveYear)
