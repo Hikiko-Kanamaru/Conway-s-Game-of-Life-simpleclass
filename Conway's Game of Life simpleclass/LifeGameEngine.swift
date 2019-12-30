@@ -10,13 +10,32 @@ import Foundation
 
 class LifeGameEngine {
     //格納型プロパティ
-    ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]]
-    var lifeData = [[Bool]] ()
+    ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]] 変更した場合　自動でlifeMapLiveYearが修正されます
+    var lifeData:[[Bool]]  = [[Bool]] () {
+        didSet{
+            //マップのサイズが変更された場合。生存年数と過密度をリセットする
+            guard lifeData.count == oldValue.count && lifeData[0].count == oldValue[0].count else {
+                lifeMapLiveYear = Array(repeating: Array(repeating: 0, count: lifeData[0].count), count: lifeData.count)
+                lifeKamitudo = Array(repeating:{Array(repeating: 0, count: lifeData[0].count + 2)}(), count: lifeData.count + 2)
+                return
+            }
+            //生存年数の計算
+
+            for x in 0..<lifeData.count{
+                for y in 0..<lifeData[0].count{
+                    if lifeData[x][y] == true && oldValue[x][y] == true {
+                        lifeMapLiveYear[x][y] += 1
+                    }
+                }
+            }
+            
+        }
+    }
     ///ライフセルの生存年数
     var lifeMapLiveYear = [[Int]]()
     ///ライフセルの過密度
     var lifeKamitudo = [[Int]]()
-    ///端の処理 反対側と接続するかどうか
+    ///端の処理 反対側と接続するかどうか tureで端を反対側と接続する
     var mapEdge:(x:Bool,y:Bool)  = (true,true)
 
     //計算型プロパティ
@@ -36,34 +55,137 @@ class LifeGameEngine {
     var cellAllCount:Int{
         return lifeData.count * lifeData[0].count
     }
-    ///セルのxy軸(x:Int,y:Int) 計算型　get節のみ
-    /// 同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
+    /**
+     セルのxy軸(x:Int,y:Int) 計算型　get節のみ
+    同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
+     */
     var cellXY:(x:Int,y:Int){
         return (x:lifeData.count,y:lifeData[0].count)
     }
+    //なぜ危険なのか、それは値を変えれば内部が変わると思って変更された際に、同じことを示すデータが二つあると衝突を起こすからである。
+    //どっちらに従うべきか分からず問題になるので、同じデータなら、保存場所は一カ所に統一したい。
     
     //mapCreateを基本にして、必要な情報を増やしている
-    ///
+    /**
+     LifeGameを構成します。内部が見たい場合は、LifeData[[Bool]]を呼び出して確認して下さい。
+     
+     - parameter Size : LifeGameMapのサイズ　上限は10,000です
+     - parameter seisei : セルの生死指定　CellMakerを選択して下さい。
+     - parameter Edge : 端の処理の仕方。trueの場合、反対側と接続されます。
+     */
     init(Size size:(x:Int,y:Int),seisei s:CellMaker  = .raddom, Edge edge:(x:Bool,y:Bool)) {
-        //lifeDataを作る
-        let maker = s.maker()
-        for _ in 0..<size.x {
-            //一度に列を入れるために一度変数に入れる。
-            var yjiku = [Bool]()
-            for _ in 0..<size.y{
-                //値生成部分
-                yjiku.append(maker(true))
-                
-            }
-            lifeData.append(yjiku)
-            //lifeMapLiveYearの初期化
-            lifeMapLiveYear.append(Array.init(repeating: 0, count: size.y))
+        var xSize = size.x
+        var ySize = size.y
+        if xSize > 10000 || xSize < 0 {
+            xSize = 10000
         }
+        if ySize > 10000 || ySize < 0 {
+            ySize = 10000
+        }
+        //lifeDataを作る
+        let initLifeData = LifeGameEngine.mapCreate(Xjiku: xSize, Yjiku: ySize, seisei: s)
+//        for _ in 0..<xSize {
+//            //一度に列を入れるために一度変数に入れる。
+//            var yjiku = [Bool]()
+//            for _ in 0..<ySize{
+//                //値生成部分
+//                yjiku.append(maker(true))
+//
+//            }
+//            initLifeData.append(yjiku)
+//        }
+        lifeData = initLifeData
         //過密度の初期化
-            lifeKamitudo = (Array(repeating:{Array(repeating: 0, count: size.y + 2)}(), count: size.y + 2))
+            lifeKamitudo = (Array(repeating:{Array(repeating: 0, count: ySize + 2)}(), count: xSize + 2))
         //端の処理の初期化
         mapEdge = edge
     }
+
+    //外部から呼び出したい場合があるので、公開するためにclass関数化する
+    /// マップを生成してくれる 引数　X軸,Y軸,値生成方法(デフォルはランダム)省略可
+    class func mapCreate(Xjiku x:Int,Yjiku y:Int,seisei s:CellMaker = .raddom ) -> [[Bool]] {
+        var map = [[Bool]]()
+        //seiseiはクロージャではなく列挙型をを受け取っているので、クロージャーを呼び出し格納する
+        let boolmaker = s.maker()
+        for _ in 0..<x {
+            var yjiku = [Bool]()
+            for _ in 0..<y {
+                //値生成部分
+                yjiku.append(boolmaker(true))
+            }
+            map.append(yjiku)
+        }
+        return map
+    }
+    
+    
+    //nextLifeをコピペして端の処理を追加　返値をなくした。内部のデータをいじるのみ
+
+    
+    func nextLife() {
+        
+        //毎回読み込ませると時間がかかるので、定数として読み込ませる
+        let xCount = lifeData.count
+        let yCount = lifeData[0].count
+        
+        //周辺の密度を保存する。型がIntのため、mapCreateを使わない。端っこかどうかの計算をなくすために、一マスづつ前後に大きくしています。両側ぶんで２足します
+        lifeKamitudo = Array(repeating:{Array(repeating: 0, count: yCount + 2)}(), count: xCount + 2)
+        
+        //返値を保存する場所 生命は減っていく傾向にあるのでdate指定
+        var nextWorld  = LifeGameEngine.mapCreate(Xjiku: xCount, Yjiku: yCount, seisei: .dathe)
+        
+        //引数worldを読み込み過密状況を調査する
+        for x in 0..<xCount {
+            for y in 0..<yCount{
+                //マスに生命が存在したら、周辺の過密度を上昇させる
+                if lifeData[x][y] == true{
+                    //過密度を書き込むループ 9方向に加算する
+                    //　ハードコード(直接書き込む事)したほうが早いが、読みづらいのでforループを使う
+                    for i in 0...2 {
+                        for t in 0...2{
+                            lifeKamitudo[x+i][y+t] += 1
+                        }
+                    }
+                    //自分は隣接する個数に含まれないので、１減らす
+                  lifeKamitudo[x+1][y+1] -= 1
+                }
+            }
+        }
+        //新設された端の解決。
+        if mapEdge.x == true {
+            <#code#>
+        }
+        if mapEdge.y == true {
+        }
+        if mapEdge == (true,true){
+        }
+        
+        // lifeKamitudo(過密度)に基づき生存判定をしていく
+        for x in 1...xCount{
+            for y in 1...yCount {
+                switch lifeKamitudo[x][y] {
+                //３なら誕生
+                case 3 :
+                    nextWorld[x-1][y-1] = true
+                //２なら、マスに生命がいれば生存させる
+                case 2 :
+                    if lifeData [x-1][y-1] == true {
+                        nextWorld[x-1][y-1] = true
+                    }
+                //それ以外は、基礎値でfalseのまま
+                default:
+                    //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
+                    {}()
+                }
+            }
+        }
+        
+        lifeData = nextWorld
+    }
+    
+    
+}
+
     
     
     

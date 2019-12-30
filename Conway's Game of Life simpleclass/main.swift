@@ -235,6 +235,11 @@ lifeView(world: lifeData)
 //
 
 
-var miko = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.raddom, Edge: (x: true, y: true))
-print(miko.lifeData)
-print(miko.lifeMapLiveYear)
+var gameOne = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.raddom, Edge: (x: true, y: true))
+print(gameOne.lifeData)
+print(gameOne.lifeMapLiveYear)
+lifeView(world: gameOne.lifeData)
+print(gameOne.lifeMapLiveYear)
+gameOne.lifeData = lifeData
+gameOne.lifeData = lifeData
+print(gameOne.lifeMapLiveYear)
