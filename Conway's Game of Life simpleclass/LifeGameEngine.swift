@@ -151,13 +151,36 @@ class LifeGameEngine {
                 }
             }
         }
+        
         //新設された端の解決。
+        //何度も呼び出すと重いので一時変数(Temp)に受ける
+        let kamituXTemp = lifeKamitudo.count
+        let kamituYTemp = lifeKamitudo[1].count
         if mapEdge.x == true {
-            <#code#>
+            for x in 1...kamituXTemp - 1  {
+                //端の過密度を反対側に加算する
+            lifeKamitudo[x][1] += lifeKamitudo[x][kamituYTemp]
+            lifeKamitudo[x][kamituYTemp - 1] += lifeKamitudo[x][0]
+            }
         }
         if mapEdge.y == true {
+            for y in 1...kamituYTemp - 1  {
+                //端の過密度を反対側に加算する
+            lifeKamitudo[1][y] += lifeKamitudo[kamituXTemp][y]
+            lifeKamitudo[kamituXTemp - 1][y] += lifeKamitudo[0][y]
+            }
         }
+        //角の斜め方向の処理
         if mapEdge == (true,true){
+            //左上
+            lifeKamitudo[1][1] += lifeKamitudo[kamituXTemp][kamituYTemp]
+            //左下
+            lifeKamitudo[1][kamituYTemp - 1 ] = lifeKamitudo[kamituXTemp][0]
+            //右上
+            lifeKamitudo[kamituXTemp][kamituYTemp] = lifeKamitudo[kamituXTemp][kamituYTemp]
+            //右下
+        
+            
         }
         
         // lifeKamitudo(過密度)に基づき生存判定をしていく
