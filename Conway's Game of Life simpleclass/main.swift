@@ -235,11 +235,17 @@ lifeView(world: lifeData)
 //
 
 
-var gameOne = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.raddom, Edge: (x: true, y: true))
-print(gameOne.lifeData)
-print(gameOne.lifeMapLiveYear)
+var gameOne = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.live33, Edge: (x: true, y: true))
+//print(gameOne.lifeData)
+//print(gameOne.lifeMapLiveYear)
+//lifeView(world: gameOne.lifeData)
+//print(gameOne.lifeMapLiveYear)
+//gameOne.lifeData = lifeData
+//gameOne.lifeData = lifeData
+//print(gameOne.lifeMapLiveYear)
+
 lifeView(world: gameOne.lifeData)
-print(gameOne.lifeMapLiveYear)
-gameOne.lifeData = lifeData
-gameOne.lifeData = lifeData
-print(gameOne.lifeMapLiveYear)
+for _ in 0..<10{
+gameOne.nextLife()
+lifeView(world: gameOne.lifeData)
+}

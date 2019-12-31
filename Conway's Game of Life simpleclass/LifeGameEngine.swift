@@ -84,17 +84,9 @@ class LifeGameEngine {
         }
         //lifeDataを作る
         let initLifeData = LifeGameEngine.mapCreate(Xjiku: xSize, Yjiku: ySize, seisei: s)
-//        for _ in 0..<xSize {
-//            //一度に列を入れるために一度変数に入れる。
-//            var yjiku = [Bool]()
-//            for _ in 0..<ySize{
-//                //値生成部分
-//                yjiku.append(maker(true))
-//
-//            }
-//            initLifeData.append(yjiku)
-//        }
         lifeData = initLifeData
+        //生存年数の初期化
+        lifeMapLiveYear = (Array(repeating:{Array(repeating: 0, count: ySize)}(), count: xSize ))
         //過密度の初期化
             lifeKamitudo = (Array(repeating:{Array(repeating: 0, count: ySize + 2)}(), count: xSize + 2))
         //端の処理の初期化
@@ -122,89 +114,88 @@ class LifeGameEngine {
     //nextLifeをコピペして端の処理を追加　返値をなくした。内部のデータをいじるのみ
 
     
-    func nextLife() {
-        
-        //毎回読み込ませると時間がかかるので、定数として読み込ませる
-        let xCount = lifeData.count
-        let yCount = lifeData[0].count
-        
-        //周辺の密度を保存する。型がIntのため、mapCreateを使わない。端っこかどうかの計算をなくすために、一マスづつ前後に大きくしています。両側ぶんで２足します
-        lifeKamitudo = Array(repeating:{Array(repeating: 0, count: yCount + 2)}(), count: xCount + 2)
-        
-        //返値を保存する場所 生命は減っていく傾向にあるのでdate指定
-        var nextWorld  = LifeGameEngine.mapCreate(Xjiku: xCount, Yjiku: yCount, seisei: .dathe)
-        
-        //引数worldを読み込み過密状況を調査する
-        for x in 0..<xCount {
-            for y in 0..<yCount{
-                //マスに生命が存在したら、周辺の過密度を上昇させる
-                if lifeData[x][y] == true{
-                    //過密度を書き込むループ 9方向に加算する
-                    //　ハードコード(直接書き込む事)したほうが早いが、読みづらいのでforループを使う
-                    for i in 0...2 {
-                        for t in 0...2{
-                            lifeKamitudo[x+i][y+t] += 1
-                        }
-                    }
-                    //自分は隣接する個数に含まれないので、１減らす
-                  lifeKamitudo[x+1][y+1] -= 1
-                }
-            }
-        }
-        
-        //新設された端の解決。
-        //何度も呼び出すと重いので一時変数(Temp)に受ける
-        let kamituXTemp = lifeKamitudo.count
-        let kamituYTemp = lifeKamitudo[1].count
-        if mapEdge.x == true {
-            for x in 1...kamituXTemp - 1  {
-                //端の過密度を反対側に加算する
-            lifeKamitudo[x][1] += lifeKamitudo[x][kamituYTemp]
-            lifeKamitudo[x][kamituYTemp - 1] += lifeKamitudo[x][0]
-            }
-        }
-        if mapEdge.y == true {
-            for y in 1...kamituYTemp - 1  {
-                //端の過密度を反対側に加算する
-            lifeKamitudo[1][y] += lifeKamitudo[kamituXTemp][y]
-            lifeKamitudo[kamituXTemp - 1][y] += lifeKamitudo[0][y]
-            }
-        }
-        //角の斜め方向の処理
-        if mapEdge == (true,true){
-            //左上
-            lifeKamitudo[1][1] += lifeKamitudo[kamituXTemp][kamituYTemp]
-            //左下
-            lifeKamitudo[1][kamituYTemp - 1 ] = lifeKamitudo[kamituXTemp][0]
-            //右上
-            lifeKamitudo[kamituXTemp][kamituYTemp] = lifeKamitudo[kamituXTemp][kamituYTemp]
-            //右下
-        
-            
-        }
-        
-        // lifeKamitudo(過密度)に基づき生存判定をしていく
-        for x in 1...xCount{
-            for y in 1...yCount {
-                switch lifeKamitudo[x][y] {
-                //３なら誕生
-                case 3 :
-                    nextWorld[x-1][y-1] = true
-                //２なら、マスに生命がいれば生存させる
-                case 2 :
-                    if lifeData [x-1][y-1] == true {
-                        nextWorld[x-1][y-1] = true
-                    }
-                //それ以外は、基礎値でfalseのまま
-                default:
-                    //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
-                    {}()
-                }
-            }
-        }
-        
-        lifeData = nextWorld
-    }
+//    func nextLife() {
+//        
+//        //毎回読み込ませると時間がかかるので、定数として読み込ませる
+//        let xCount = lifeData.count
+//        let yCount = lifeData[0].count
+//        
+//        //周辺の密度を保存する。型がIntのため、mapCreateを使わない。端っこかどうかの計算をなくすために、一マスづつ前後に大きくしています。両側ぶんで２足します
+//        lifeKamitudo = Array(repeating:{Array(repeating: 0, count: yCount + 2)}(), count: xCount + 2)
+//        
+//        //返値を保存する場所 生命は減っていく傾向にあるのでdate指定
+//        var nextWorld  = LifeGameEngine.mapCreate(Xjiku: xCount, Yjiku: yCount, seisei: .dathe)
+//        
+//        //引数worldを読み込み過密状況を調査する
+//        for x in 0..<xCount {
+//            for y in 0..<yCount{
+//                //マスに生命が存在したら、周辺の過密度を上昇させる
+//                if lifeData[x][y] == true{
+//                    //過密度を書き込むループ 9方向に加算する
+//                    //　ハードコード(直接書き込む事)したほうが早いが、読みづらいのでforループを使う
+//                    for i in 0...2 {
+//                        for t in 0...2{
+//                            lifeKamitudo[x+i][y+t] += 1
+//                        }
+//                    }
+//                    //自分は隣接する個数に含まれないので、１減らす
+//                    lifeKamitudo[x+1][y+1] -= 1
+//                }
+//            }
+//        }
+//        
+//        //新設された端の解決。
+//        //何度も呼び出すと重いので一時変数(Temp)に受ける
+//        let kamituXTemp = lifeKamitudo.count
+//        let kamituYTemp = lifeKamitudo[1].count
+//        if mapEdge.x == true {
+//            for x in 1...kamituXTemp - 1  {
+//                //端の過密度を反対側に加算する
+//                lifeKamitudo[x][1] += lifeKamitudo[x][kamituYTemp]
+//                lifeKamitudo[x][kamituYTemp - 1] += lifeKamitudo[x][0]
+//            }
+//        }
+//        if mapEdge.y == true {
+//            for y in 1...kamituYTemp - 1  {
+//                //端の過密度を反対側に加算する
+//                lifeKamitudo[1][y] += lifeKamitudo[kamituXTemp][y]
+//                lifeKamitudo[kamituXTemp - 1][y] += lifeKamitudo[0][y]
+//            }
+//        }
+//        //角の斜め方向の処理
+//        if mapEdge == (true,true){
+//            //左上
+//            lifeKamitudo[1][1] += lifeKamitudo[kamituXTemp][kamituYTemp]
+//            //左下
+//            lifeKamitudo[1][kamituYTemp - 1 ] = lifeKamitudo[kamituXTemp][0]
+//            //右上
+//            lifeKamitudo[kamituXTemp - 1 ][1] = lifeKamitudo[0][kamituYTemp]
+//            //右下
+//            lifeKamitudo[kamituXTemp - 1 ][kamituYTemp - 1] = lifeKamitudo[0][0]
+//        }
+//        
+//        
+//        // lifeKamitudo(過密度)に基づき生存判定をしていく
+//        for x in 1...xCount{
+//            for y in 1...yCount {
+//                switch lifeKamitudo[x][y] {
+//                //３なら誕生
+//                case 3 :
+//                    nextWorld[x-1][y-1] = true
+//                //２なら、マスに生命がいれば生存させる
+//                case 2 :
+//                    if lifeData [x-1][y-1] == true {
+//                        nextWorld[x-1][y-1] = true
+//                    }
+//                //それ以外は、基礎値でfalseのまま
+//                default:
+//                    //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
+//                    {}()
+//                }
+//            }
+//        }
+//        lifeData = nextWorld
+//    }
     
     
 }
@@ -212,7 +203,6 @@ class LifeGameEngine {
     
     
     
-}
 
 
 //列挙型 セルの処理の仕方を毎回書いていると面倒なので、外部から注入する方式にする
@@ -228,6 +218,7 @@ enum CellMaker{
     case reverse
     case raddom
     case stripes
+    case live33
     static var stripesBool = false
     ///caseに合わせて処理用のクロージャを返します。
     func maker() -> (Bool)-> Bool {
@@ -243,6 +234,95 @@ enum CellMaker{
         case .stripes :
             return {_ in CellMaker.stripesBool = !CellMaker.stripesBool
                 return CellMaker.stripesBool }
+        case .live33  :
+            return {_ -> Bool in let ikiteriru = [true,false,false]
+                return ikiteriru[Int.random(in: 0...2)]}
         }
     }
+}
+
+
+extension LifeGameEngine {
+    func nextLife() {
+           
+           //毎回読み込ませると時間がかかるので、定数として読み込ませる
+           let xCount = lifeData.count
+           let yCount = lifeData[0].count
+           
+           //周辺の密度を保存する。型がIntのため、mapCreateを使わない。端っこかどうかの計算をなくすために、一マスづつ前後に大きくしています。両側ぶんで２足します
+           lifeKamitudo = Array(repeating:{Array(repeating: 0, count: yCount + 2)}(), count: xCount + 2)
+           
+           //返値を保存する場所 生命は減っていく傾向にあるのでdate指定
+           var nextWorld  = LifeGameEngine.mapCreate(Xjiku: xCount, Yjiku: yCount, seisei: .dathe)
+           
+           //引数worldを読み込み過密状況を調査する
+           for x in 0..<xCount {
+               for y in 0..<yCount{
+                   //マスに生命が存在したら、周辺の過密度を上昇させる
+                   if lifeData[x][y] == true{
+                       //過密度を書き込むループ 9方向に加算する
+                       //　ハードコード(直接書き込む事)したほうが早いが、読みづらいのでforループを使う
+                       for i in 0...2 {
+                           for t in 0...2{
+                               lifeKamitudo[x+i][y+t] += 1
+                           }
+                       }
+                       //自分は隣接する個数に含まれないので、１減らす
+                       lifeKamitudo[x+1][y+1] -= 1
+                   }
+               }
+           }
+           
+           //新設された端の解決。
+           //何度も呼び出すと重いので一時変数(Temp)に受ける
+           let kamituXTemp = lifeKamitudo.count - 1
+           let kamituYTemp = lifeKamitudo[1].count - 1
+           if mapEdge.x == true {
+            for x in 1..<kamituXTemp {
+                   //端の過密度を反対側に加算する
+                   lifeKamitudo[x][1] += lifeKamitudo[x][kamituYTemp]
+                   lifeKamitudo[x][kamituYTemp - 1] += lifeKamitudo[x][0]
+               }
+           }
+           if mapEdge.y == true {
+               for y in 1..<kamituYTemp  {
+                   //端の過密度を反対側に加算する
+                   lifeKamitudo[1][y] += lifeKamitudo[kamituXTemp][y]
+                   lifeKamitudo[kamituXTemp - 1][y] += lifeKamitudo[0][y]
+               }
+           }
+           //角の斜め方向の処理
+           if mapEdge == (true,true){
+               //左上
+               lifeKamitudo[1][1] += lifeKamitudo[kamituXTemp][kamituYTemp]
+               //左下
+               lifeKamitudo[1][kamituYTemp - 1 ] = lifeKamitudo[kamituXTemp][0]
+               //右上
+               lifeKamitudo[kamituXTemp - 1 ][1] = lifeKamitudo[0][kamituYTemp]
+               //右下
+               lifeKamitudo[kamituXTemp - 1 ][kamituYTemp - 1] = lifeKamitudo[0][0]
+           }
+           
+           
+           // lifeKamitudo(過密度)に基づき生存判定をしていく
+           for x in 1...xCount{
+               for y in 1...yCount {
+                   switch lifeKamitudo[x][y] {
+                   //３なら誕生
+                   case 3 :
+                       nextWorld[x-1][y-1] = true
+                   //２なら、マスに生命がいれば生存させる
+                   case 2 :
+                       if lifeData [x-1][y-1] == true {
+                           nextWorld[x-1][y-1] = true
+                       }
+                   //それ以外は、基礎値でfalseのまま
+                   default:
+                       //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
+                       {}()
+                   }
+               }
+           }
+           lifeData = nextWorld
+       }
 }
