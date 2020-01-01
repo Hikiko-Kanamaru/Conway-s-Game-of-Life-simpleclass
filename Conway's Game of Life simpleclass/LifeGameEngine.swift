@@ -20,11 +20,16 @@ class LifeGameEngine {
                 return
             }
             //生存年数の計算
-
+            
             for x in 0..<lifeData.count{
                 for y in 0..<lifeData[0].count{
-                    if lifeData[x][y] == true && oldValue[x][y] == true {
-                        lifeMapLiveYear[x][y] += 1
+                    if lifeData[x][y] == true{
+                        if oldValue[x][y] == true {
+                            lifeMapLiveYear[x][y] += 1
+                        }
+                        
+                    }else {
+                        lifeMapLiveYear[x][y] = 0
                     }
                 }
             }
@@ -37,7 +42,10 @@ class LifeGameEngine {
     var lifeKamitudo = [[Int]]()
     ///端の処理 反対側と接続するかどうか tureで端を反対側と接続する X横方向の接続　Y縦方向の接続
     var mapEdge:(x:Bool,y:Bool)  = (true,true)
-
+    ///強調表示基準　設定された値を超えたら強調する いわゆるマジックナンバーだが、外部からいじることもないだろうしこのままで行く。
+    var coreLevel:(Int,Int) = (5,7)
+    
+    
     //計算型プロパティ
     ///生きているセル数　計算型　get節のみ
     var lifeCellCount:Int{
@@ -162,24 +170,17 @@ enum CellMaker{
 
 extension LifeGameEngine {
     func nextLife() {
-        
-        //毎回読み込ませると時間がかかるので、定数として読み込ませる
         let xCount = lifeData.count
         let yCount = lifeData[0].count
-        
-        //周辺の密度を保存する。型がIntのため、mapCreateを使わない。端っこかどうかの計算をなくすために、一マスづつ前後に大きくしています。両側ぶんで２足します
         lifeKamitudo = Array(repeating:{Array(repeating: 0, count: yCount + 2)}(), count: xCount + 2)
-        
-        //返値を保存する場所 生命は減っていく傾向にあるのでdate指定
         var nextWorld  = LifeGameEngine.mapCreate(Xjiku: xCount, Yjiku: yCount, seisei: .dathe)
-        
+    
         //引数worldを読み込み過密状況を調査する
         for x in 0..<xCount {
             for y in 0..<yCount{
                 //マスに生命が存在したら、周辺の過密度を上昇させる
                 if lifeData[x][y] == true{
                     //過密度を書き込むループ 9方向に加算する
-                    //　ハードコード(直接書き込む事)したほうが早いが、読みづらいのでforループを使う
                     for i in 0...2 {
                         for t in 0...2{
                             lifeKamitudo[x+i][y+t] += 1
@@ -242,5 +243,51 @@ extension LifeGameEngine {
             }
         }
         lifeData = nextWorld
+    }
+}
+
+
+extension LifeGameEngine {
+    /**
+     ブロック状に表示します。コマンドラインではゲーム画面を表示するのに利用しますが、UIVIewでは、デバック用として使って下さい。
+     */
+    func lifeView(){
+            print("現在の世界を表示します")
+        //今回は生存は、黒、絶滅は白の記号で表示していく　非常に長く続いているところは、黄色くする。さらに続いたところは赤くする
+        let life = ["⬛️","🟨","🟥"]
+        let death = "⬜️"
+        //生存者集を計算数変数
+        var ikinokori = 0
+        print("|", separator: "", terminator: "")
+        for y in 0..<lifeData[0].count{
+            //列番号の表示 きれいに表示されるのは,10*10くらいまで
+            print("\(y%10)|", separator: "", terminator: "")
+        }
+        print("")
+        //ループを回して、マップを読み込む
+        for y in 0..<lifeData[0].count {
+            for x in 0..<lifeData.count{
+                //値を把握して、どちらを表示するか決める
+                if lifeData[x][y] == true {
+                    ikinokori += 1
+                    var t = 0
+                    switch lifeMapLiveYear[x][y] {
+                    case coreLevel.1... :
+                        t = 2
+                    case coreLevel.0..<coreLevel.1:
+                        t = 1
+                    default:
+                        t = 0
+                    }
+                    print(life[t], separator: "", terminator: "")
+                }else{
+                    print(death, separator: "", terminator: "")
+                }
+            }
+            //改行コード　端まできたら改行する
+            //行番号の表示
+            print(":\(y)", separator: "", terminator: "\n")
+        }
+        print("現在生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
     }
 }
