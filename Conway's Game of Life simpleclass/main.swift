@@ -253,3 +253,13 @@ gameOne.nextLife()
 //lifeView(world: gameOne.lifeData)
     gameOne.lifeView()
 }
+
+for i in 0..<gameOne.cellXY.x{
+    gameOne.kamiNoTe(point: (i,0), sayou: .live)
+}
+gameOne.lifeView()
+
+for _ in 0..<10 {
+    gameOne.nextLife()
+    gameOne.lifeView()
+}

@@ -7,12 +7,21 @@
 //
 
 import Foundation
+//　MARK:　- LifeGameEngineの基礎部分
 
+/**
+ ライフゲームのモデルを提供します
+ 内部データはlifeData:[[Bool]]です。
+ */
 class LifeGameEngine {
     //格納型プロパティ
     ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]] 変更した場合　自動でlifeMapLiveYearが修正されます
     var lifeData:[[Bool]]  = [[Bool]] () {
         didSet{
+            guard usedLifeMapLiveYear else {
+                usedLifeMapLiveYear = true
+                return
+            }
             //マップのサイズが変更された場合。生存年数と過密度をリセットする
             guard lifeData.count == oldValue.count && lifeData[0].count == oldValue[0].count else {
                 lifeMapLiveYear = Array(repeating: Array(repeating: 0, count: lifeData[0].count), count: lifeData.count)
@@ -38,9 +47,12 @@ class LifeGameEngine {
     }
     ///ライフセルの生存年数
     var lifeMapLiveYear = [[Int]]()
+    ///生存年数の経過停止 falseにすると一度だけ更新を行わない。ずっと止めていたければ、毎回falseを与えること。
+    var usedLifeMapLiveYear = true
+    
     ///ライフセルの過密度
     var lifeKamitudo = [[Int]]()
-    ///端の処理 反対側と接続するかどうか tureで端を反対側と接続する X横方向の接続　Y縦方向の接続
+    ///端の処理 反対側と接続するかどうか tureで端を反対側と接続する X(横方向)の接続　Y(縦方向)の接続
     var mapEdge:(x:Bool,y:Bool)  = (true,true)
     ///強調表示基準　設定された値を超えたら強調する いわゆるマジックナンバーだが、外部からいじることもないだろうしこのままで行く。
     var coreLevel:(Int,Int) = (5,7)
@@ -49,14 +61,14 @@ class LifeGameEngine {
     //計算型プロパティ
     ///生きているセル数　計算型　get節のみ
     var lifeCellCount:Int{
-            var kotae = 0
-            lifeData.forEach { (y:[Bool]) in
-                y.forEach { (c:Bool) in
-                    if c == true {
-                        kotae += 1
-                    }
+        var kotae = 0
+        lifeData.forEach { (y:[Bool]) in
+            y.forEach { (c:Bool) in
+                if c == true {
+                    kotae += 1
                 }
             }
+        }
         return kotae
     }
     ///総合セル数　計算型　get節のみ
@@ -65,7 +77,7 @@ class LifeGameEngine {
     }
     /**
      セルのxy軸(x:Int,y:Int) 計算型　get節のみ
-    同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
+     同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
      */
     var cellXY:(x:Int,y:Int){
         return (x:lifeData.count,y:lifeData[0].count)
@@ -77,7 +89,7 @@ class LifeGameEngine {
     /**
      LifeGameを構成します。内部が見たい場合は、LifeData[[Bool]]を呼び出して確認して下さい。
      
-     - parameter Size : LifeGameMapのサイズ　上限は10,000です
+     - parameter Size : LifeGameMapのサイズ　上限は10,000です 
      - parameter seisei : セルの生死指定　CellMakerを選択して下さい。
      - parameter Edge : 端の処理の仕方。trueの場合、反対側と接続されます。　x横方向　y縦方向
      */
@@ -96,11 +108,11 @@ class LifeGameEngine {
         //生存年数の初期化
         lifeMapLiveYear = (Array(repeating:{Array(repeating: 0, count: ySize)}(), count: xSize ))
         //過密度の初期化
-            lifeKamitudo = (Array(repeating:{Array(repeating: 0, count: ySize + 2)}(), count: xSize + 2))
+        lifeKamitudo = (Array(repeating:{Array(repeating: 0, count: ySize + 2)}(), count: xSize + 2))
         //端の処理の初期化
         mapEdge = edge
     }
-
+    
     //外部から呼び出したい場合があるので、公開するためにclass関数化する
     /// マップを生成してくれる 引数　X軸,Y軸,値生成方法(デフォルはランダム)省略可
     class func mapCreate(Xjiku x:Int,Yjiku y:Int,seisei s:CellMaker = .raddom ) -> [[Bool]] {
@@ -124,7 +136,7 @@ class LifeGameEngine {
     
     
 
-
+// MARK: - CellMaker
 //列挙型 セルの処理の仕方を毎回書いていると面倒なので、外部から注入する方式にする
 /**
  セルをどのような値にするかをcaseで選ぶ。
@@ -167,6 +179,7 @@ enum CellMaker{
     }
 }
 
+// MARK: - LifeGameEngineの拡張定義
 
 extension LifeGameEngine {
     func nextLife() {
@@ -290,4 +303,14 @@ extension LifeGameEngine {
         }
         print("現在生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
     }
+}
+
+extension LifeGameEngine {
+    //特定のマスを指示してデータを操作する関数 worldは現在の状態、pointは編集する場所(X軸,Y軸)、sayouは、セルに行う操作　デフォルトは、反転
+    func kamiNoTe(point p :(Int,Int),sayou s:CellMaker = .reverse ) {
+        let sTemp = s.maker()
+        usedLifeMapLiveYear = false
+        lifeData[p.0][p.1] = sTemp(lifeData[p.0][p.1])
+    }
+
 }
