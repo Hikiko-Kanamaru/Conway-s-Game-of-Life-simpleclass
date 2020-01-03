@@ -236,6 +236,7 @@ print("Hello, World!")
 
 
 var gameOne = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.live33, Edge: (x: true, y: true))
+gameOne.lifeView()
 //print(gameOne.lifeData)
 //print(gameOne.lifeMapLiveYear)
 //lifeView(world: gameOne.lifeData)
@@ -263,8 +264,10 @@ for _ in 0..<10 {
     gameOne.nextLife()
     gameOne.lifeView()
 }
-var ukeru = LifeGameEngine(Size: (x:4, y: 3), seisei: CellMaker.live, Edge: (x: true, y: true))
+var ukeru = LifeGameEngine(Size: (x:3, y: 3), seisei: CellMaker.live, Edge: (x: true, y: true))
 
-ukeru.lifeData = stampArrey.hatinosu.stamp()
 ukeru.lifeView()
 print(ukeru.lifeData)
+
+ukeru.lifeData = stampArrey.glider.stamp()
+ukeru.lifeView()

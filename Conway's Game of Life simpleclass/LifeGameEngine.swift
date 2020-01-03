@@ -63,7 +63,8 @@ class LifeGameEngine {
     var mapEdge:(x:Bool,y:Bool)  = (true,true)
     ///強調表示基準　設定された値を超えたら強調する いわゆるマジックナンバーだが、外部からいじることもないだろうしこのままで行く。
     var coreLevel:(Int,Int) = (5,7)
-    
+    ///経過年月
+    var yearCount = 0
     
     //計算型プロパティ
     ///生きているセル数　計算型　get節のみ
@@ -211,6 +212,12 @@ enum stampArrey {
             stampTemp = [[true, true], [true, true]]
         case .hatinosu:
             stampTemp = [[false, true, false], [true, false, true],[true, false, true], [false, true, false]]
+        case .blinker:
+            stampTemp = [[false, false, false],[true, true, true], [false, false, false]]
+        case .beacon:
+            stampTemp = [[true, true, false, false], [true, false, false, false], [false, false, false, true], [false, false, true, true]]
+        case .glider:
+            stampTemp = [[true, true, false], [true, false, true], [true, false, false]]
         default:
             stampTemp = [[false]]
         }
@@ -300,6 +307,7 @@ extension LifeGameEngine {
             }
         }
         lifeData = nextWorld
+        yearCount += 1
     }
 }
 
@@ -345,7 +353,7 @@ extension LifeGameEngine {
             //行番号の表示
             print(":\(y)", separator: "", terminator: "\n")
         }
-        print("現在生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
+        print("\(yearCount)年目 - 生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
     }
 }
 
