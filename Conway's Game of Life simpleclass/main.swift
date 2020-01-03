@@ -269,5 +269,12 @@ var ukeru = LifeGameEngine(Size: (x:3, y: 3), seisei: CellMaker.live, Edge: (x: 
 ukeru.lifeView()
 print(ukeru.lifeData)
 
-ukeru.lifeData = stampArrey.glider.stamp()
+
+for i in 0...3{
+    ukeru.lifeData = stampArrey.glider.stamp(kaiten: i)
+    ukeru.lifeView()
+}
+
+let uke = stampArrey.stamp(.hatinosu)
+ukeru.lifeData = uke(1)
 ukeru.lifeView()

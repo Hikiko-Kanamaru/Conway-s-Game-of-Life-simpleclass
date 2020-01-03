@@ -15,6 +15,7 @@ import Foundation
  */
 class LifeGameEngine {
     //格納型プロパティ
+    
     ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]] 変更した場合　自動でlifeMapLiveYearが修正されます
     var lifeData:[[Bool]]  = [[Bool]] () {
         didSet{
@@ -36,7 +37,6 @@ class LifeGameEngine {
                 return
             }
             //生存年数の計算
-            
             for x in 0..<lifeData.count{
                 for y in 0..<lifeData[0].count{
                     if lifeData[x][y] == true{
@@ -200,7 +200,13 @@ enum stampArrey {
     //移動系
     case glider
 
-    //回転は、stampの回転方向です。　0~3で0が上で時計回りにナンバーが降られています。
+    /**
+     特定の構造を持った。配列[[Bool]]を返します
+     回転は、stampの回転方向です。
+     
+    - parameter kaiten : 回転方向 0~3で0が上で時計回りにナンバーが降られています。
+    - returns : [[Bool]]
+ */
     func stamp(kaiten k:Int = 0) -> [[Bool]] {
         //スタンプを受け取る
         var stampTemp = [[Bool]]()
@@ -218,11 +224,44 @@ enum stampArrey {
             stampTemp = [[true, true, false, false], [true, false, false, false], [false, false, false, true], [false, false, true, true]]
         case .glider:
             stampTemp = [[true, true, false], [true, false, true], [true, false, false]]
-        default:
-            stampTemp = [[false]]
         }
         //回転機能
-        stampKotae = stampTemp
+        //大きな数字が入力された際ようにあまりを出すようにすることで安全にする
+        let kaitenTemp = k % 4
+        switch kaitenTemp {
+        //上
+        case 0:
+            stampKotae = stampTemp
+        //左
+        case 3 :
+            //反転させておいてから、右と同じ処理をする　fallthrougで下のケースを強制実行できる
+            for i in 0..<stampTemp.count {
+                stampKotae.append(stampTemp[i].reversed())
+            }
+            stampTemp = stampKotae.reversed()
+            stampKotae = [[Bool]]()
+            fallthrough
+        //右
+        case 1 :
+            //回転させる　移動前nのセルを読み出す。移動後の位置に移す
+            for y in 0..<stampTemp[0].count {
+                //型が[[Bool]]と違うので一時的に変数を宣言する。
+                var itiji = [Bool]()
+                for x in 0..<stampTemp.count {
+                    itiji.append(stampTemp[x][stampTemp[0].count - y - 1])
+                }
+                stampKotae.append(itiji)
+            }
+        //下
+        case 2 :
+            //revaersedは、配列を反対にしたものを返してくれる
+            for i in 0..<stampTemp.count {
+                stampKotae.append(stampTemp[i].reversed())
+            }
+            stampKotae = stampKotae.reversed()
+        default:
+            stampKotae = stampTemp
+        }
         return stampKotae
     }
 }
