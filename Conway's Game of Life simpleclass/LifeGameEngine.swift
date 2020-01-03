@@ -24,8 +24,15 @@ class LifeGameEngine {
             }
             //マップのサイズが変更された場合。生存年数と過密度をリセットする
             guard lifeData.count == oldValue.count && lifeData[0].count == oldValue[0].count else {
-                lifeMapLiveYear = Array(repeating: Array(repeating: 0, count: lifeData[0].count), count: lifeData.count)
-                lifeKamitudo = Array(repeating:{Array(repeating: 0, count: lifeData[0].count + 2)}(), count: lifeData.count + 2)
+                //ライフデータが何も入っていないと動作停止するので、警告を出し,既定値で初期化する
+                if lifeData.count != 0 {
+                    lifeMapLiveYear = Array(repeating: Array(repeating: 0, count: lifeData[0].count), count: lifeData.count)
+                    lifeKamitudo = Array(repeating:{Array(repeating: 0, count: lifeData[0].count + 2)}(), count: lifeData.count + 2)
+                }else{
+                    print("ライフデータが何も入っていません。エラーです。調査して下さい。")
+                    lifeData = [[false]]
+                    return
+                }
                 return
             }
             //生存年数の計算
@@ -179,8 +186,45 @@ enum CellMaker{
     }
 }
 
-// MARK: - LifeGameEngineの拡張定義
+// MARK: - stamp スタンプ配列
+/**
+ スタンプ配列を引き渡します。
+メソッドstampで[[Bool]]を得られます
+ */
+enum stampArrey {
+    //固定系
+    case sikaku,hatinosu
+    //振動系
+    case blinker,beacon
+    //移動系
+    case glider
 
+    //回転は、stampの回転方向です。　0~3で0が上で時計回りにナンバーが降られています。
+    func stamp(kaiten k:Int = 0) -> [[Bool]] {
+        //スタンプを受け取る
+        var stampTemp = [[Bool]]()
+        //回転後のスタンプ配置場所
+        var stampKotae = [[Bool]]()
+        //stamp呼び出し
+        switch self {
+        case .sikaku:
+            stampTemp = [[true, true], [true, true]]
+        case .hatinosu:
+            stampTemp = [[false, true, false], [true, false, true],[true, false, true], [false, true, false]]
+        default:
+            stampTemp = [[false]]
+        }
+        //回転機能
+        stampKotae = stampTemp
+        return stampKotae
+    }
+}
+
+
+
+
+// MARK: - LifeGameEngineの拡張定義
+// MARK: nextLife系
 extension LifeGameEngine {
     func nextLife() {
         let xCount = lifeData.count
@@ -259,7 +303,7 @@ extension LifeGameEngine {
     }
 }
 
-
+//　MARK: - View表示
 extension LifeGameEngine {
     /**
      ブロック状に表示します。コマンドラインではゲーム画面を表示するのに利用しますが、UIVIewでは、デバック用として使って下さい。
@@ -305,12 +349,100 @@ extension LifeGameEngine {
     }
 }
 
+
+// MARK: - マップを操作
 extension LifeGameEngine {
-    //特定のマスを指示してデータを操作する関数 worldは現在の状態、pointは編集する場所(X軸,Y軸)、sayouは、セルに行う操作　デフォルトは、反転
+    ///特定のマスを指示してデータを操作する関数 worldは現在の状態、pointは編集する場所(X軸,Y軸)、sayouは、セルに行う操作　デフォルトは、反転
     func kamiNoTe(point p :(Int,Int),sayou s:CellMaker = .reverse ) {
         let sTemp = s.maker()
+        //生存年数が計算されないように止める。
         usedLifeMapLiveYear = false
         lifeData[p.0][p.1] = sTemp(lifeData[p.0][p.1])
     }
-
+    
+    //マップ拡大
+    //マップ縮小
+    //スタンプ
+    
 }
+
+
+
+
+// MARK: - コマンドライン　機能調査のため
+//extension LifeGameEngine{
+//    ///コマンドラインで遊ぶゲームモードを起動します
+//    func gameMode(){
+//        print("ここから、ゲームモード")
+//        //世界の大きさ
+//        var ookisa:Int = 0
+//        //ゲームモードのマップ
+//        var gameMap:[[Bool]]
+//
+//        repeat {
+//            print("数字を入力してください1~50まで")
+//            //readLineで入力を受け付ける
+//            let readOokisa = readLine() ?? "0"
+//            ookisa = Int(readOokisa) ?? 0
+//        }while ookisa == 0 || ookisa > 50
+//
+//        print("\(ookisa)を受け取りました。マップを製造します")
+//        gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
+//        lifeView(world: gameMap)
+//
+//        //操作するループ　next change changeAll view exti
+//        //文字入力用文字列
+//        var readString = ""
+//        repeat{
+//            print("操作を英字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
+//            readString = readLine() ?? ""
+//            //switch文で条件分岐
+//            switch readString {
+//            case "next":
+//                var readKaisuu = ""
+//                var nextkaisuu = 0
+//                repeat {
+//                    print("どれくらい進めますか？1回以上")
+//                    readKaisuu = readLine() ?? "0"
+//                    nextkaisuu = Int(readKaisuu) ?? 0
+//                }while nextkaisuu == 0
+//                for _ in 0..<nextkaisuu{
+//                    gameMap = nextLife(world: gameMap)
+//                }
+//            case "change":
+//                //x軸
+//                let xMax = gameMap.count
+//                var xjiku:Int = xMax
+//                repeat {
+//                    print("x軸を入力して下さい。最大値は\(xMax - 1)です")
+//                    let readX = readLine() ?? ""
+//                    xjiku = Int(readX) ?? xjiku
+//                }while xjiku >= xMax
+//                //y軸
+//                let yMax = gameMap[0].count
+//                var yjiku:Int = yMax
+//                repeat {
+//                    print("y軸を入力して下さい。最大値は\(yMax - 1)です")
+//                    let ready = readLine() ?? ""
+//                    yjiku = Int(ready) ?? yjiku
+//                }while yjiku >= yMax
+//                //操作部
+//                print("x:\(xjiku) y:\(yjiku)を、反転させます")
+//                kamiNoTe(world: &gameMap, point: (xjiku,yjiku))
+//            case "changeAll":
+//                print("世界を再構成します")
+//                //新たにマップを作って上書きする。
+//                gameMap = mapCreate(Xjiku: ookisa, Yjiku: ookisa)
+//            case "view":
+//                lifeView(world: gameMap)
+//            case "exit":
+//                print("終了します")
+//            default:
+//                print("指示を理解できません")
+//            }
+//            //exitが入力されない限り繰り返す
+//        }while readString != "exit"
+//
+//    }
+//
+//}
