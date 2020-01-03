@@ -192,7 +192,7 @@ enum CellMaker{
  スタンプ配列を引き渡します。
 メソッドstampで[[Bool]]を得られます
  */
-enum stampArrey {
+enum StampArrey {
     //固定系
     case sikaku,hatinosu
     //振動系
@@ -204,14 +204,12 @@ enum stampArrey {
      特定の構造を持った。配列[[Bool]]を返します
      回転は、stampの回転方向です。
      
-    - parameter kaiten : 回転方向 0~3で0が上で時計回りにナンバーが降られています。
+    - parameter Houkou : 回転方向
     - returns : [[Bool]]
  */
-    func stamp(kaiten k:Int = 0) -> [[Bool]] {
+    func stamp(Houkou H:Houkou = .Up) -> [[Bool]] {
         //スタンプを受け取る
         var stampTemp = [[Bool]]()
-        //回転後のスタンプ配置場所
-        var stampKotae = [[Bool]]()
         //stamp呼び出し
         switch self {
         case .sikaku:
@@ -227,50 +225,58 @@ enum stampArrey {
         }
         //回転機能
         //大きな数字が入力された際ようにあまりを出すようにすることで安全にする
-        let kaitenTemp = k % 4
-        switch kaitenTemp {
-        //上
-        case 0:
-            stampKotae = stampTemp
-        //左
-        case 3 :
-            //反転させておいてから、右と同じ処理をする　fallthrougで下のケースを強制実行できる
-            for i in 0..<stampTemp.count {
-                stampKotae.append(stampTemp[i].reversed())
-            }
-            stampTemp = stampKotae.reversed()
-            stampKotae = [[Bool]]()
-            fallthrough
-        //右
-        case 1 :
-            //回転させる　移動前nのセルを読み出す。移動後の位置に移す
-            for y in 0..<stampTemp[0].count {
-                //型が[[Bool]]と違うので一時的に変数を宣言する。
-                var itiji = [Bool]()
-                for x in 0..<stampTemp.count {
-                    itiji.append(stampTemp[x][stampTemp[0].count - y - 1])
-                }
-                stampKotae.append(itiji)
-            }
-        //下
-        case 2 :
-            //revaersedは、配列を反対にしたものを返してくれる
-            for i in 0..<stampTemp.count {
-                stampKotae.append(stampTemp[i].reversed())
-            }
-            stampKotae = stampKotae.reversed()
-        default:
-            stampKotae = stampTemp
-        }
-        return stampKotae
+//        let kaitenTemp = k % 4
+//        switch kaitenTemp {
+//        //上
+//        case 0:
+//            stampKotae = stampTemp
+//        //左
+//        case 3 :
+//            //反転させておいてから、右と同じ処理をする　fallthrougで下のケースを強制実行できる
+//            for i in 0..<stampTemp.count {
+//                stampKotae.append(stampTemp[i].reversed())
+//            }
+//            stampTemp = stampKotae.reversed()
+//            stampKotae = [[Bool]]()
+//            fallthrough
+//        //右
+//        case 1 :
+//            //回転させる　移動前nのセルを読み出す。移動後の位置に移す
+//            for y in 0..<stampTemp[0].count {
+//                //型が[[Bool]]と違うので一時的に変数を宣言する。
+//                var itiji = [Bool]()
+//                for x in 0..<stampTemp.count {
+//                    itiji.append(stampTemp[x][stampTemp[0].count - y - 1])
+//                }
+//                stampKotae.append(itiji)
+//            }
+//        //下
+//        case 2 :
+//            //revaersedは、配列を反対にしたものを返してくれる
+//            for i in 0..<stampTemp.count {
+//                stampKotae.append(stampTemp[i].reversed())
+//            }
+//            stampKotae = stampKotae.reversed()
+//        default:
+//            stampKotae = stampTemp
+//        }
+        stampTemp = LifeGameEngine.mapKaiten(map: stampTemp, houkou: H)
+        return stampTemp
     }
 }
 
 
+/**
+ 方向示す列挙型
+ */
+enum Houkou:Int {
+    case Up = 0 ,Right,Down,Left
+}
+
 
 
 // MARK: - LifeGameEngineの拡張定義
-// MARK: nextLife系
+// MARK:  nextLife系
 extension LifeGameEngine {
     func nextLife() {
         let xCount = lifeData.count
@@ -406,7 +412,52 @@ extension LifeGameEngine {
         usedLifeMapLiveYear = false
         lifeData[p.0][p.1] = sTemp(lifeData[p.0][p.1])
     }
-    
+    //マップの回転
+    /**
+     マップを回転させます　<T>はジェネリクス。方向は回転させる方向　UPは回転させません
+     - parameter map : 多重配列であればなんでも可
+     - parameter houkou : Houkou型、回転させたい方向を入れてね
+     - returns:[[T]]
+     */
+    class func mapKaiten<T>(map m : [[T]],houkou h:Houkou = .Right) -> [[T]] {
+        var mapTemp  = m
+        var mapKotae = [[T]]()
+        switch h {
+        //上
+        case .Up:
+            mapKotae = mapTemp
+        //左
+        case .Left :
+            //反転させておいてから、右と同じ処理をする　fallthrougで下のケースを強制実行できる
+            for i in 0..<mapTemp.count {
+                mapKotae.append(mapTemp[i].reversed())
+            }
+            mapTemp = mapKotae.reversed()
+            mapKotae = [[T]]()
+            fallthrough
+        //右
+        case .Right :
+            //回転させる　移動前nのセルを読み出す。移動後の位置に移す
+            for y in 0..<mapTemp[0].count {
+                //型が[[Bool]]と違うので一時的に変数を宣言する。
+                var mapItiji = [T]()
+                for x in 0..<mapTemp.count {
+                    mapItiji.append(mapTemp[x][mapTemp[0].count - y - 1])
+                }
+                mapKotae.append(mapItiji)
+            }
+        //下
+        case .Down :
+            //revaersedは、配列を反対にしたものを返してくれる
+            for i in 0..<mapTemp.count {
+                mapKotae.append(mapTemp[i].reversed())
+            }
+            mapKotae = mapKotae.reversed()
+        default:
+            mapKotae = mapTemp
+        }
+        return mapKotae
+    }
     //マップ拡大
     //マップ縮小
     //スタンプ

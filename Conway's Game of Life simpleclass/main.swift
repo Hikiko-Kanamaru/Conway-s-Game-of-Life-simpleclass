@@ -271,10 +271,14 @@ print(ukeru.lifeData)
 
 
 for i in 0...3{
-    ukeru.lifeData = stampArrey.glider.stamp(kaiten: i)
+    ukeru.lifeData = StampArrey.glider.stamp(Houkou: Houkou(rawValue: i)!)
     ukeru.lifeView()
 }
 
-let uke = stampArrey.stamp(.hatinosu)
-ukeru.lifeData = uke(1)
+let uke = StampArrey.stamp(.hatinosu)
+ukeru.lifeData = uke(.Right)
 ukeru.lifeView()
+
+gameOne.lifeView()
+gameOne.lifeData = LifeGameEngine.mapKaiten(map: gameOne.lifeData, houkou: .Left)
+gameOne.lifeView()
