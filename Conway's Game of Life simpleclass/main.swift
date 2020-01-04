@@ -58,3 +58,4 @@ gameOne.lifeView()
 gameOne.lifeData = LifeGameEngine.mapKaiten(map: gameOne.lifeData, houkou: .Left)
 gameOne.lifeView()
 
+LifeGameEngine.gameMode()
