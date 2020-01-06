@@ -10,7 +10,7 @@ import Foundation
 
 print("Hello, World!")
 
-var gameOne = LifeGameEngine(Size: (x: 15, y: 15), seisei: CellMaker.live33, Edge: (x: true, y: true))
+var gameOne = LifeGameEngine(Size: (x: 8, y: 8), seisei: CellMaker.raddom, Edge: (x: true, y: true))
 gameOne.lifeView()
 //print(gameOne.lifeData)
 //print(gameOne.lifeMapLiveYear)
@@ -24,7 +24,12 @@ gameOne.lifeView()
 ////gameOne.nextLife()
 ////print(gameOne.lifeKamitudo)
 
-for _ in 0..<10{
+//gameOne.lifeData = [[false, false, false, false, false], [true, true, false, false, false], [true, false, true, false, false], [true, false, false, false, false], [false, false, false, false, false]]
+
+//[[true, true, false], [true, false, true], [true, false, false]]
+//print(gameOne.lifeData)
+gameOne.lifeView()
+for _ in 0..<20{
 gameOne.nextLife()
 //lifeView(world: gameOne.lifeData)
     gameOne.lifeView()
@@ -44,11 +49,16 @@ var ukeru = LifeGameEngine(Size: (x:3, y: 3), seisei: CellMaker.live, Edge: (x: 
 ukeru.lifeView()
 print(ukeru.lifeData)
 
+print("回転機能を実行しています")
 
-for i in 0...3{
-    ukeru.lifeData = StampArrey.glider.stamp(Houkou: Houkou(rawValue: i)!)
+//let mimi = Houkou.allCases
+//print(mimi)
+for i in Houkou.allCases {
+    ukeru.lifeData = StampArrey.glider.stamp(Houkou: i)
     ukeru.lifeView()
 }
+
+
 
 let uke = StampArrey.stamp(.hatinosu)
 ukeru.lifeData = uke(.Right)
@@ -58,4 +68,4 @@ gameOne.lifeView()
 gameOne.lifeData = LifeGameEngine.mapKaiten(map: gameOne.lifeData, houkou: .Left)
 gameOne.lifeView()
 
-LifeGameEngine.gameMode()
+//LifeGameEngine.gameMode()

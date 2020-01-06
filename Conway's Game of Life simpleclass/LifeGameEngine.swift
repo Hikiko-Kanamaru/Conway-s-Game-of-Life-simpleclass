@@ -19,6 +19,7 @@ class LifeGameEngine {
     ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]] 変更した場合　自動でlifeMapLiveYearが修正されます
     var lifeData:[[Bool]]  = [[Bool]] () {
         didSet{
+            //年数経過をとめる
             guard usedLifeMapLiveYear else {
                 usedLifeMapLiveYear = true
                 return
@@ -153,7 +154,7 @@ class LifeGameEngine {
  stripesは、自動で生死が切り替わる仕様です。生死順番を調整したい場合は、stripesBoolを調整して下さい。
  live+numberは、生存セルの割合です。
  */
-enum CellMaker{
+enum CellMaker {
     case dathe
     case live
     case reverse
@@ -268,9 +269,10 @@ enum StampArrey {
 
 /**
  方向示す列挙型
+ CaseIterableに適合しているのでallCasesが使えます。
  */
-enum Houkou:Int {
-    case Up = 0 ,Right,Down,Left
+enum Houkou : Int,CaseIterable {
+    case Up = 0 , Right, Down, Left
 }
 
 
@@ -346,12 +348,13 @@ extension LifeGameEngine {
                     }
                 //それ以外は、基礎値でfalseのまま
                 default:
-                    //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
+                    //xcodeのエラー抑止　*defaultに何も設定しないと警告が出ます。
                     {}()
                 }
             }
         }
         lifeData = nextWorld
+        //年数を一年進める。
         yearCount += 1
     }
 }
@@ -453,8 +456,6 @@ extension LifeGameEngine {
                 mapKotae.append(mapTemp[i].reversed())
             }
             mapKotae = mapKotae.reversed()
-        default:
-            mapKotae = mapTemp
         }
         return mapKotae
     }
