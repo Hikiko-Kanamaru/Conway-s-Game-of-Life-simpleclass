@@ -102,7 +102,7 @@ class LifeGameEngine {
      - parameter seisei : セルの生死指定　CellMakerを選択して下さい。
      - parameter Edge : 端の処理の仕方。trueの場合、反対側と接続されます。　x横方向　y縦方向
      */
-    init(Size size:(x:Int,y:Int),seisei s:CellMaker  = .raddom, Edge edge:(x:Bool,y:Bool)) {
+    init(Size size:(x:Int,y:Int),seisei s:CellMaker  = .raddom, Edge edge:(x:Bool,y:Bool) = (true,true)) {
         var xSize = size.x
         var ySize = size.y
         if xSize > 10000 || xSize < 0 {
