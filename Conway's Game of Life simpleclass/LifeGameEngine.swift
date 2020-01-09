@@ -357,6 +357,18 @@ extension LifeGameEngine {
         //年数を一年進める。
         yearCount += 1
     }
+    
+    ///nextLifeを複数回実行する 最大1000まで
+    func nextLife(count c :Int = 1)  {
+        var cTemp = c
+        if c > 1000 || c <= 0 {
+            cTemp = 1000
+        }
+        for _ in 1...cTemp{
+            nextLife()
+        }
+    }
+    
 }
 
 //　MARK: - View表示
@@ -369,8 +381,6 @@ extension LifeGameEngine {
         //今回は生存は、黒、絶滅は白の記号で表示していく　非常に長く続いているところは、黄色くする。さらに続いたところは赤くする
         let life = ["⬛️","🟨","🟥"]
         let death = "⬜️"
-        //生存者集を計算数変数
-        var ikinokori = 0
         print("|", separator: "", terminator: "")
         for y in 0..<lifeData[0].count{
             //列番号の表示 きれいに表示されるのは,10*10くらいまで
@@ -382,7 +392,6 @@ extension LifeGameEngine {
             for x in 0..<lifeData.count{
                 //値を把握して、どちらを表示するか決める
                 if lifeData[x][y] == true {
-                    ikinokori += 1
                     var t = 0
                     switch lifeMapLiveYear[x][y] {
                     case coreLevel.1... :
@@ -401,7 +410,9 @@ extension LifeGameEngine {
             //行番号の表示
             print(":\(y)", separator: "", terminator: "\n")
         }
-        print("\(yearCount)年目 - 生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
+        //生存者数を受け取る
+        let ikinokori = lifeCellCount
+        print("\(yearCount)年目 - 生き残りは、\(ikinokori)です。約\(ikinokori*100/(cellXY.x * cellXY.y))%です。")
     }
 }
 
@@ -565,4 +576,14 @@ extension LifeGameEngine{
 
     }
 
+}
+
+
+extension LifeGameEngine{
+    ///マップと経過年数をリセットします。
+    func reset() {
+        self.lifeData = LifeGameEngine.mapCreate(Xjiku: cellXY.x, Yjiku: cellXY.y)
+        self.lifeMapLiveYearReset()
+        self.yearCount = 0
+    }
 }

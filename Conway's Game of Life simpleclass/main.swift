@@ -71,9 +71,23 @@ gameOne.lifeView()
 //LifeGameEngine.gameMode()
 
 print("Qiita2年目の実行コード")
-let gameStart = LifeGameEngine(Size: (x:3, y: 3), seisei: CellMaker.raddom, Edge: (x: true, y: true))
+let gameStart = LifeGameEngine(Size: (x:5, y: 5), seisei: CellMaker.live20, Edge: (x: true, y: true))
 print("lifeDataの内容を表示します\(gameStart.lifeData)")
 print("現在の生存セル数は、\(gameStart.lifeCellCount)セルです。")
 print("マップの大きは、\(gameStart.cellXY)")
 
+print("lifeViewを実行しています")
+gameStart.lifeView()
+gameStart.nextLife(count:10)
+gameStart.lifeView()
+
+gameStart.reset()
+print("nextLifeを実行しています")
+gameStart.lifeView()
+//通常のnextLifeの呼び出し
+gameStart.nextLife()
+gameStart.lifeView()
+//nextLifeをオーバーロードして、countを呼び出している
+gameStart.nextLife(count: 5)
+gameStart.lifeView()
 
