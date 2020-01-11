@@ -208,7 +208,7 @@ enum StampArrey {
      
     - parameter Houkou : 回転方向
     - returns : [[Bool]]
- */
+    */
     func stamp(Houkou H:Houkou = .Up) -> [[Bool]] {
         //スタンプを受け取る
         var stampTemp = [[Bool]]()
@@ -226,42 +226,6 @@ enum StampArrey {
             stampTemp = [[true, true, false], [true, false, true], [true, false, false]]
         }
         //回転機能
-        //大きな数字が入力された際ようにあまりを出すようにすることで安全にする
-//        let kaitenTemp = k % 4
-//        switch kaitenTemp {
-//        //上
-//        case 0:
-//            stampKotae = stampTemp
-//        //左
-//        case 3 :
-//            //反転させておいてから、右と同じ処理をする　fallthrougで下のケースを強制実行できる
-//            for i in 0..<stampTemp.count {
-//                stampKotae.append(stampTemp[i].reversed())
-//            }
-//            stampTemp = stampKotae.reversed()
-//            stampKotae = [[Bool]]()
-//            fallthrough
-//        //右
-//        case 1 :
-//            //回転させる　移動前nのセルを読み出す。移動後の位置に移す
-//            for y in 0..<stampTemp[0].count {
-//                //型が[[Bool]]と違うので一時的に変数を宣言する。
-//                var itiji = [Bool]()
-//                for x in 0..<stampTemp.count {
-//                    itiji.append(stampTemp[x][stampTemp[0].count - y - 1])
-//                }
-//                stampKotae.append(itiji)
-//            }
-//        //下
-//        case 2 :
-//            //revaersedは、配列を反対にしたものを返してくれる
-//            for i in 0..<stampTemp.count {
-//                stampKotae.append(stampTemp[i].reversed())
-//            }
-//            stampKotae = stampKotae.reversed()
-//        default:
-//            stampKotae = stampTemp
-//        }
         stampTemp = LifeGameEngine.mapKaiten(map: stampTemp, houkou: H)
         return stampTemp
     }
