@@ -91,3 +91,17 @@ gameStart.lifeView()
 gameStart.nextLife(count: 5)
 gameStart.lifeView()
 
+
+gameStart.reset()
+
+print("神の手を実行します。")
+gameStart.lifeView()
+for i in 0..<gameStart.cellXY.x{
+    gameStart.kamiNoTe(point: (i,0), sayou: CellMaker.live)
+    gameStart.kamiNoTe(point: (i,1), sayou: .reverse)
+    gameStart.kamiNoTe(point: (i,2), sayou: .dathe)
+    gameStart.kamiNoTe(point: (i,3), sayou: .stripes)
+}
+gameStart.lifeView()
+
+LifeGameEngine.gameMode()

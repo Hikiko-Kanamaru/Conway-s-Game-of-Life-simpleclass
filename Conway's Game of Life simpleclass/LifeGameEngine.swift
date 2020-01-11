@@ -85,8 +85,9 @@ class LifeGameEngine {
         return lifeData.count * lifeData[0].count
     }
     /**
-     セルのxy軸(x:Int,y:Int) 計算型　get節のみ
+     セルのxy軸(x:Int,y:Int)の個数　 計算型　get節のみ
      同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
+      セルの添字最大値を利用したい場合、ー１する事
      */
     var cellXY:(x:Int,y:Int){
         return (x:lifeData.count,y:lifeData[0].count)
@@ -515,8 +516,6 @@ extension LifeGameEngine{
         }while !(readLineTemp == "false" || readLineTemp == "true")
         haji.1 = Bool(readLineTemp)!
         
-        
-
         print("サイズ\(ookisa),端接続\(haji)受け取りました。マップを製造します")
         gameData = LifeGameEngine(Size: (x: ookisa, y: ookisa), seisei: CellMaker.live33, Edge: haji)
         gameData.lifeView()
@@ -524,7 +523,7 @@ extension LifeGameEngine{
         //文字入力用文字列
         var readString = ""
         repeat{
-            print("操作を英字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
+            print("操作を半角英数字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
             readString = readLine() ?? ""
             //switch文で条件分岐
             switch readString {
@@ -542,20 +541,22 @@ extension LifeGameEngine{
             case "change":
                 //x軸
                 let xMax = gameData.cellXY.x
+                //入力間違えてもエラーになるようにエラー値を入れている
                 var xjiku:Int = xMax
                 repeat {
                     print("x軸を入力して下さい。最大値は\(xMax - 1)です")
                     let readX = readLine() ?? ""
                     xjiku = Int(readX) ?? xjiku
-                }while xjiku >= xMax
+                }while xjiku >= xMax || xjiku <= 0
                 //y軸
                 let yMax = gameData.cellXY.y
+                //入力間違えてもエラーになるようにエラー値を入れているい
                 var yjiku:Int = yMax
                 repeat {
                     print("y軸を入力して下さい。最大値は\(yMax - 1)です")
                     let ready = readLine() ?? ""
                     yjiku = Int(ready) ?? yjiku
-                }while yjiku >= yMax
+                }while yjiku >= yMax || yjiku <= 0
                 //操作部
                 print("x:\(xjiku) y:\(yjiku)を、反転させます")
                 gameData.kamiNoTe(point: (xjiku,yjiku))
