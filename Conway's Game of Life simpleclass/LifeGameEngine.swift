@@ -498,7 +498,7 @@ extension LifeGameEngine{
         ///端の接続性
         var haji = (true,true)
         repeat {
-            print("数字を入力してください1~50まで")
+            print("マップの大きさをを、半角数字で入力してください1~50まで")
             //readLineで入力を受け付ける
             let readOokisa = readLine() ?? "0"
             ookisa = Int(readOokisa) ?? 0
