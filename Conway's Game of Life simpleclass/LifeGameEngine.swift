@@ -19,6 +19,7 @@ class LifeGameEngine {
     ///ライフゲームの基礎マップ　２重配列の真理値　ライフゲームの基礎データ[X軸[Y軸]] 変更した場合　自動でlifeMapLiveYearが修正されます
     var lifeData:[[Bool]]  = [[Bool]] () {
         didSet{
+            //年数経過をとめる
             guard usedLifeMapLiveYear else {
                 usedLifeMapLiveYear = true
                 return
@@ -84,8 +85,9 @@ class LifeGameEngine {
         return lifeData.count * lifeData[0].count
     }
     /**
-     セルのxy軸(x:Int,y:Int) 計算型　get節のみ
+     セルのxy軸(x:Int,y:Int)の個数　 計算型　get節のみ
      同じデータが複数の場所に保存されると危険なので、計算型にして値を保持しないようにしている。
+      セルの添字最大値を利用したい場合、ー１する事
      */
     var cellXY:(x:Int,y:Int){
         return (x:lifeData.count,y:lifeData[0].count)
@@ -101,7 +103,7 @@ class LifeGameEngine {
      - parameter seisei : セルの生死指定　CellMakerを選択して下さい。
      - parameter Edge : 端の処理の仕方。trueの場合、反対側と接続されます。　x横方向　y縦方向
      */
-    init(Size size:(x:Int,y:Int),seisei s:CellMaker  = .raddom, Edge edge:(x:Bool,y:Bool)) {
+    init(Size size:(x:Int,y:Int),seisei s:CellMaker  = .raddom, Edge edge:(x:Bool,y:Bool) = (true,true)) {
         var xSize = size.x
         var ySize = size.y
         if xSize > 10000 || xSize < 0 {
@@ -153,7 +155,7 @@ class LifeGameEngine {
  stripesは、自動で生死が切り替わる仕様です。生死順番を調整したい場合は、stripesBoolを調整して下さい。
  live+numberは、生存セルの割合です。
  */
-enum CellMaker{
+enum CellMaker {
     case dathe
     case live
     case reverse
@@ -268,9 +270,10 @@ enum StampArrey {
 
 /**
  方向示す列挙型
+ CaseIterableに適合しているのでallCasesが使えます。
  */
-enum Houkou:Int {
-    case Up = 0 ,Right,Down,Left
+enum Houkou : Int,CaseIterable {
+    case Up = 0 , Right, Down, Left
 }
 
 
@@ -346,14 +349,27 @@ extension LifeGameEngine {
                     }
                 //それ以外は、基礎値でfalseのまま
                 default:
-                    //xcodeのエラー抑止　*defaultに何も設定しないとエラーが出ます。
+                    //xcodeのエラー抑止　*defaultに何も設定しないと警告が出ます。
                     {}()
                 }
             }
         }
         lifeData = nextWorld
+        //年数を一年進める。
         yearCount += 1
     }
+    
+    ///nextLifeを複数回実行する 最大1000まで
+    func nextLife(count c :Int = 1)  {
+        var cTemp = c
+        if c > 1000 || c <= 0 {
+            cTemp = 1000
+        }
+        for _ in 1...cTemp{
+            nextLife()
+        }
+    }
+    
 }
 
 //　MARK: - View表示
@@ -366,8 +382,6 @@ extension LifeGameEngine {
         //今回は生存は、黒、絶滅は白の記号で表示していく　非常に長く続いているところは、黄色くする。さらに続いたところは赤くする
         let life = ["⬛️","🟨","🟥"]
         let death = "⬜️"
-        //生存者集を計算数変数
-        var ikinokori = 0
         print("|", separator: "", terminator: "")
         for y in 0..<lifeData[0].count{
             //列番号の表示 きれいに表示されるのは,10*10くらいまで
@@ -379,7 +393,6 @@ extension LifeGameEngine {
             for x in 0..<lifeData.count{
                 //値を把握して、どちらを表示するか決める
                 if lifeData[x][y] == true {
-                    ikinokori += 1
                     var t = 0
                     switch lifeMapLiveYear[x][y] {
                     case coreLevel.1... :
@@ -398,7 +411,9 @@ extension LifeGameEngine {
             //行番号の表示
             print(":\(y)", separator: "", terminator: "\n")
         }
-        print("\(yearCount)年目 - 生き残りは、\(ikinokori)です。約\(ikinokori*100/(lifeData.count * lifeData[0].count))%です。")
+        //生存者数を受け取る
+        let ikinokori = lifeCellCount
+        print("\(yearCount)年目 - 生き残りは、\(ikinokori)です。約\(ikinokori*100/(cellXY.x * cellXY.y))%です。")
     }
 }
 
@@ -453,8 +468,6 @@ extension LifeGameEngine {
                 mapKotae.append(mapTemp[i].reversed())
             }
             mapKotae = mapKotae.reversed()
-        default:
-            mapKotae = mapTemp
         }
         return mapKotae
     }
@@ -503,8 +516,6 @@ extension LifeGameEngine{
         }while !(readLineTemp == "false" || readLineTemp == "true")
         haji.1 = Bool(readLineTemp)!
         
-        
-
         print("サイズ\(ookisa),端接続\(haji)受け取りました。マップを製造します")
         gameData = LifeGameEngine(Size: (x: ookisa, y: ookisa), seisei: CellMaker.live33, Edge: haji)
         gameData.lifeView()
@@ -512,7 +523,7 @@ extension LifeGameEngine{
         //文字入力用文字列
         var readString = ""
         repeat{
-            print("操作を英字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
+            print("操作を半角英数字で入力して下さい。\n next:次の時代に進みます \n change:対象のマスを変更します \n changeAll:すべてを変更します　\n view:現在の状態を表示します　即時実行されます　\n exit:終了します")
             readString = readLine() ?? ""
             //switch文で条件分岐
             switch readString {
@@ -530,20 +541,22 @@ extension LifeGameEngine{
             case "change":
                 //x軸
                 let xMax = gameData.cellXY.x
+                //入力間違えてもエラーになるようにエラー値を入れている
                 var xjiku:Int = xMax
                 repeat {
                     print("x軸を入力して下さい。最大値は\(xMax - 1)です")
                     let readX = readLine() ?? ""
                     xjiku = Int(readX) ?? xjiku
-                }while xjiku >= xMax
+                }while xjiku >= xMax || xjiku <= 0
                 //y軸
                 let yMax = gameData.cellXY.y
+                //入力間違えてもエラーになるようにエラー値を入れているい
                 var yjiku:Int = yMax
                 repeat {
                     print("y軸を入力して下さい。最大値は\(yMax - 1)です")
                     let ready = readLine() ?? ""
                     yjiku = Int(ready) ?? yjiku
-                }while yjiku >= yMax
+                }while yjiku >= yMax || yjiku <= 0
                 //操作部
                 print("x:\(xjiku) y:\(yjiku)を、反転させます")
                 gameData.kamiNoTe(point: (xjiku,yjiku))
@@ -564,4 +577,14 @@ extension LifeGameEngine{
 
     }
 
+}
+
+
+extension LifeGameEngine{
+    ///マップと経過年数をリセットします。
+    func reset() {
+        self.lifeData = LifeGameEngine.mapCreate(Xjiku: cellXY.x, Yjiku: cellXY.y)
+        self.lifeMapLiveYearReset()
+        self.yearCount = 0
+    }
 }
